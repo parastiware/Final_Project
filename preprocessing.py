@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-from tensorflow.keras.preprocessing.image import img_to_array
+from PIL import Image
+import io
 
 class XrayPreprocessor:
     """Class for preprocessing chest X-ray images for TB detection"""
@@ -39,29 +40,33 @@ class XrayPreprocessor:
         Returns:
             numpy.ndarray: Preprocessed image ready for model input
         """
-        # Convert to grayscale if not already
-        if len(image.shape) > 2 and image.shape[2] > 1:
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        else:
-            gray = image
+        try:
+            # Convert to grayscale if not already
+            if len(image.shape) > 2 and image.shape[2] > 1:
+                gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            else:
+                gray = image
+                
+            # Ensure the image is of type uint8
+            gray = gray.astype('uint8')
             
-        # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-        enhanced = clahe.apply(gray)
-        
-        # Resize
-        resized = cv2.resize(enhanced, self.target_size)
-        
-        # Normalize to [0, 1]
-        normalized = resized / 255.0
-        
-        # Convert to RGB (3 channels)
-        rgb = np.stack([normalized] * 3, axis=-1)
-        
-        # Prepare for model (add batch dimension)
-        processed = np.expand_dims(rgb, axis=0)
-        
-        return processed
+            # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+            enhanced = clahe.apply(gray)
+            
+            # Resize
+            resized = cv2.resize(enhanced, self.target_size)
+            
+            # Normalize to [0, 1]
+            normalized = resized / 255.0
+            
+            # Convert to RGB (3 channels)
+            rgb = np.stack([normalized] * 3, axis=-1)
+            
+            return rgb
+            
+        except Exception as e:
+            raise ValueError(f"Error in preprocessing: {str(e)}")
     
     def process_from_path(self, image_path):
         """
@@ -79,20 +84,33 @@ class XrayPreprocessor:
     
     def process_from_bytes(self, image_bytes):
         """
-        Load and preprocess an image from bytes
+        Process an image from bytes
         
         Args:
-            image_bytes (bytes): Image bytes
+            image_bytes (bytes): Image data in bytes
             
         Returns:
             tuple: (original_image, processed_image)
         """
-        # Convert bytes to numpy array
-        nparr = np.frombuffer(image_bytes, np.uint8)
-        # Decode the image
-        original = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        processed = self.preprocess_image(original)
-        return original, processed
+        try:
+            # First try with PIL
+            img = Image.open(io.BytesIO(image_bytes))
+            img = img.convert('RGB')  # Ensure RGB
+            img = img.resize(self.target_size)
+            
+            # Convert to numpy array
+            img_array = np.array(img)
+            
+            # Store original for display
+            original = img_array.copy()
+            
+            # Preprocess for model input
+            processed = self.preprocess_image(img_array)
+            
+            return original, processed
+            
+        except Exception as e:
+            raise ValueError(f"Error processing image: {str(e)}. Please make sure the image is a valid chest X-ray.")
         
     def get_lung_segmentation(self, image):
         """
