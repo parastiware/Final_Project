@@ -35,20 +35,37 @@ This project is a comprehensive tuberculosis (TB) detection system built using d
 
 ---
 
+### 5. Screenshots
+
+![Negative](images/negative.png)
+![Positive](images/positive.png)
+![Home](images/home.png)
+![Chart](images/chart.png)
+
+
 ## Project Structure
 
 ```
-tb_xray_classifier/
-├── app.py                # Main Streamlit application
-├── src/
-│   ├── preprocessing.py  # Image preprocessing functions
-│   ├── model.py          # TB detection model implementation
-│   ├── utils.py          # Utility functions for visualization and evaluation
-├── data/                 # Directory for training and testing data
-├── models/               # Directory for saving trained models
-├── requirements.txt      # Dependencies needed to run the application
-├── README.md             # Project documentation
-└── description.txt       # Detailed project description
+.
+├── .vscode/                        # VSCode workspace settings
+├── data/
+│   └── TB_Chest_Radiography_Database/
+│       ├── Normal/                # Normal chest X-ray images
+│       ├── Tuberculosis/          # Tuberculosis chest X-ray images
+│       ├── Normal.metadata.xlsx   # Metadata for normal cases
+│       ├── Tuberculosis.metadata.xlsx # Metadata for TB cases
+│       └── README.md.txt          # Dataset description
+├── .gitignore                      # Git ignore file
+├── .DS_Store                       # macOS system file (should be ignored)
+├── README.md                       # Project documentation
+├── app.py                          # Streamlit or main app interface
+├── data_handler.py                 # Script for data loading and processing
+├── dummy_tb_model.h5               # Pretrained or dummy model file (Keras HDF5)
+├── model.py                        # Defines and compiles the model
+├── preprocessing.py                # Data preprocessing functions
+├── requirements.txt                # Python dependencies
+└── utils.py                        # Helper functions and utilities
+
 ```
 
 ---
