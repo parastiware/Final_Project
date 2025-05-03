@@ -217,4 +217,17 @@ def main():
         # Display results if a prediction has been made
         if st.session_state.prediction is not None:
             # Determine if TB positive based on threshold
-            is_tb_positive = st.session_state.
+            is_tb_positive = st.session_state.prediction >= threshold
+            
+            # Display result
+            result_class = "positive-result" if is_tb_positive else "negative-result"
+            result_text = "TB Positive" if is_tb_positive else "TB Negative"
+            st.markdown(f'<div class="result-box {result_class}"><p class="sub-header">{result_text}</p></div>', unsafe_allow_html=True)
+            
+            # Display explanation if available
+            if st.session_state.explanation is not None and show_explanation:
+                st.markdown('<p class="sub-header">Model Explanation (Grad-CAM)</p>', unsafe_allow_html=True)
+                st.image(st.session_state.explanation, caption="Grad-CAM Explanation", use_column_width=True)
+
+if __name__ == "__main__":
+    main()
