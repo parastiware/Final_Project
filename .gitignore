@@ -1,1 +1,6 @@
 venv/
+data/
+
+# Ignore large shared objects or binaries
+*.dylib
+*.so
