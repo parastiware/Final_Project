@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./tb_xray_classifier/src"
+    ]
+}
